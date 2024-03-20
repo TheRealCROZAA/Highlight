@@ -1,0 +1,40 @@
+-- Function to create a part with a given color
+local function createHighlightPart(player)
+    local highlightPart = Instance.new("Part")
+    highlightPart.Size = Vector3.new(4, 4, 4)
+    highlightPart.Transparency = 0.5
+    highlightPart.BrickColor = BrickColor.new("Bright red") -- Change color as desired
+    highlightPart.Anchored = true
+    highlightPart.CanCollide = false
+    highlightPart.Position = player.Character.HumanoidRootPart.Position
+    highlightPart.Parent = game.Workspace
+    highlightPart.Name = player.Name .. "_Highlight"
+end
+
+-- Function to create a tracer between two points
+local function createTracer(startPos, endPos)
+    local tracer = Instance.new("Part")
+    tracer.Anchored = true
+    tracer.CanCollide = false
+    tracer.Size = Vector3.new(0.2, 0.2, (startPos - endPos).magnitude)
+    tracer.CFrame = CFrame.new(startPos, endPos) * CFrame.new(0, 0, -tracer.Size.Z/2)
+    tracer.BrickColor = BrickColor.new("Bright red") -- Change color as desired
+    tracer.Parent = game.Workspace
+end
+
+-- Function to continuously highlight and trace players
+local function highlightAndTracePlayers()
+    while true do
+        for _, player in pairs(game.Players:GetPlayers()) do
+            if player.Character then
+                createHighlightPart(player)
+                if player.Character.HumanoidRootPart and game.Players.LocalPlayer.Character then
+                    createTracer(player.Character.HumanoidRootPart.Position, game.Players.LocalPlayer.Character.HumanoidRootPart.Position)
+                end
+            end
+        end
+        wait(1) -- Adjust the interval as needed
+    end
+end
+
+highlightAndTracePlayers()
