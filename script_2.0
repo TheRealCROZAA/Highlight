@@ -1,0 +1,63 @@
+-- Define the color palette for highlighting players
+local highlightColors = {
+    Color3.fromRGB(255, 0, 0),   -- Red
+    Color3.fromRGB(0, 255, 0),   -- Green
+    Color3.fromRGB(0, 0, 255),   -- Blue
+    Color3.fromRGB(255, 255, 0), -- Yellow
+    Color3.fromRGB(255, 0, 255), -- Magenta
+    Color3.fromRGB(0, 255, 255)  -- Cyan
+}
+
+-- Table to keep track of highlighted players
+local highlightedPlayers = {}
+
+-- Function to highlight a player with a unique color
+local function highlightPlayer(player)
+    if not highlightedPlayers[player] then
+        local highlightColor = highlightColors[#highlightedPlayers + 1] -- Pick the next available color
+        local character = player.Character
+        if character then
+            for _, part in ipairs(character:GetChildren()) do
+                if part:IsA("BasePart") then
+                    part.Color = highlightColor
+                end
+            end
+            highlightedPlayers[player] = true
+        end
+    end
+end
+
+-- Function to remove highlight from a player
+local function removeHighlight(player)
+    local character = player.Character
+    if character then
+        for _, part in ipairs(character:GetChildren()) do
+            if part:IsA("BasePart") then
+                part.Color = part.OriginalColor
+            end
+        end
+        highlightedPlayers[player] = nil
+    end
+end
+
+-- Function to handle player added event
+local function onPlayerAdded(player)
+    player.CharacterAdded:Connect(function(character)
+        -- Store original colors of character parts
+        for _, part in ipairs(character:GetChildren()) do
+            if part:IsA("BasePart") then
+                part.OriginalColor = part.Color
+            end
+        end
+        highlightPlayer(player)
+    end)
+end
+
+-- Highlight all existing players when script starts
+for _, player in ipairs(game.Players:GetPlayers()) do
+    onPlayerAdded(player)
+end
+
+-- Connect events for new players
+game.Players.PlayerAdded:Connect(onPlayerAdded)
+game.Players.PlayerRemoving:Connect(removeHighlight)
